@@ -5,7 +5,5 @@ public class Derps {
 	public static void main(String[] args) {
 		mainWindow = new MainWindow();
 		mainWindow.start();
-		
-		
 	}
 }
