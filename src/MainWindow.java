@@ -6,6 +6,7 @@ import org.lwjgl.opengl.DisplayMode;
 
 
 public class MainWindow {
+	private Timer timer=new Timer();
 	private Vector<Quad> quadList=new Vector<Quad>();
 	public void start(){
 		try {
@@ -14,13 +15,20 @@ public class MainWindow {
 		} catch (LWJGLException e) {
 			e.printStackTrace();
 		}
+		
+		timer.getDelta();
+		timer.setLastFPS(timer.getTime());
 		while(!Display.isCloseRequested()){
+			
 			//Objekte rendern
 			spawnTheQuads();
+			timer.updateFPS();
 			for(Quad quad:quadList)
 				quad.drawQuad();
 			pollInput();
 			Display.update();
+			Display.sync(60);
+			
 		}
 		Display.destroy();
 	}
@@ -37,7 +45,7 @@ public class MainWindow {
 						if(tmpQuad.getRect().contains(posX, posY)){
 							System.out.println("Shits deleted");
 							quadList.remove(i);
-							quadList.get(0).killQuad();
+							tmpQuad.killQuad();
 						}
 				}
 			}
@@ -45,24 +53,37 @@ public class MainWindow {
 	}
 	
 	private void spawnTheQuads() {
-		Boolean contact = true;
-		Quad tmpQuad = null;
-		while (contact) {
-			//System.out.println("Contact: "+contact);
-			tmpQuad = new Quad();
-			if (quadList.isEmpty()) {
-				contact=false;
-				break;
-			}
-			for (int i=0;i<quadList.size();i++) {
-				if (quadList.elementAt(i).getRect().intersects(tmpQuad.getRect())) {
-					contact=true;
-					break;
-				}else if (i < quadList.size()) {
-					contact = false;
+		// System.out.println("Delta: " + delta);
+		/*
+		 * Alle 5tausend Millisekunden (5 Sekunden) soll ein Quadrat spawnen
+		 */
+		int mod = 5000;
+		int value = 4000;
+		boolean lock = true;
+		
+		if (lock) {
+			if (timer.getTime()% mod >= value) {
+				lock=false;
+				Boolean contact = true;
+				Quad tmpQuad = null;
+				while (contact) {
+					tmpQuad = new Quad();
+					if (quadList.isEmpty()) {
+						contact = false;
+						break;
+					}
+					for (int i = 0; i < quadList.size(); i++) {
+						if (quadList.elementAt(i).getRect()
+								.intersects(tmpQuad.getRect())) {
+							contact = true;
+							break;
+						} else if (i < quadList.size()) {
+							contact = false;
+						}
+					}
 				}
+				quadList.add(tmpQuad);
 			}
 		}
-		quadList.add(tmpQuad);
 	}
 }

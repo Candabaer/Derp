@@ -23,9 +23,11 @@ public class Quad {
 		rect = new Rectangle(
 				positionX,positionY,size,size);
 	}  
+	
 	public Rectangle getRect(){
 		return rect;
 	}
+	
 	public void drawQuad(){	
 		// set the color of the quad (R,G,B,A)
 		GL11.glColor3f(0.5f,0.5f,1.0f);

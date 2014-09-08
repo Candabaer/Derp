@@ -15,10 +15,9 @@ public class Timer {
 	    long time = getTime();
 	    int delta = (int) (time - lastFrame);
 	    lastFrame = time;
-	 
 	    return delta;
 	}
-	
+
 	public void updateFPS() {
 		if (getTime() - lastFPS > 1000) {
 			Display.setTitle("FPS: " + fps);
@@ -27,4 +26,9 @@ public class Timer {
 		}
 		fps++;
 	}
+	
+	public void setLastFPS(long FPS){
+		lastFPS=FPS;
+	}
+	
 }
