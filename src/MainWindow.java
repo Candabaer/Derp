@@ -8,6 +8,15 @@ import org.lwjgl.opengl.DisplayMode;
 public class MainWindow {
 	private Timer timer=new Timer();
 	private Vector<Quad> quadList=new Vector<Quad>();
+	private int deltaSpawn;
+	private int mod;
+	private int counter;
+	public MainWindow() {
+		deltaSpawn=0;
+		mod=2000;
+		counter=1900;
+	}
+	
 	public void start(){
 		try {
 			Display.setDisplayMode(new DisplayMode(800,600));
@@ -43,8 +52,8 @@ public class MainWindow {
 				for(int i = 0;i<quadList.size();i++){
 					Quad tmpQuad=quadList.elementAt(i);
 						if(tmpQuad.getRect().contains(posX, posY)){
-							System.out.println("Shits deleted");
 							quadList.remove(i);
+							increaseSpawnRate();
 							tmpQuad.killQuad();
 						}
 				}
@@ -52,38 +61,49 @@ public class MainWindow {
 		}
 	}
 	
+	private void increaseSpawnRate(){
+		final int maxMod = 500;
+		final int maxCounter = 400;
+		final int decreaseAmount = 100;
+		if (mod > maxMod) {
+			mod -= decreaseAmount;
+			counter -= decreaseAmount;
+		}
+		if (mod == maxMod) {
+			mod = maxMod;
+			counter = maxCounter;
+		}
+		System.out.println("Mod:" +mod +"counter: "+counter);
+	}
+	
+	
 	private void spawnTheQuads() {
 		// System.out.println("Delta: " + delta);
 		/*
-		 * Alle 5tausend Millisekunden (5 Sekunden) soll ein Quadrat spawnen
+		 * Timer schneller werden lassen
 		 */
-		int mod = 5000;
-		int value = 4000;
-		boolean lock = true;
-		
-		if (lock) {
-			if (timer.getTime()% mod >= value) {
-				lock=false;
-				Boolean contact = true;
-				Quad tmpQuad = null;
-				while (contact) {
-					tmpQuad = new Quad();
-					if (quadList.isEmpty()) {
-						contact = false;
+		deltaSpawn+=timer.getDelta();
+		if (deltaSpawn % mod >= counter) {
+			deltaSpawn=0;
+			Boolean contact = true;
+			Quad tmpQuad = null;
+			while (contact) {
+				tmpQuad = new Quad();
+				if (quadList.isEmpty()) {
+					contact = false;
+					break;
+				}
+				for (int i = 0; i < quadList.size(); i++) {
+					if (quadList.elementAt(i).getRect()
+							.intersects(tmpQuad.getRect())) {
+						contact = true;
 						break;
-					}
-					for (int i = 0; i < quadList.size(); i++) {
-						if (quadList.elementAt(i).getRect()
-								.intersects(tmpQuad.getRect())) {
-							contact = true;
-							break;
-						} else if (i < quadList.size()) {
-							contact = false;
-						}
+					} else if (i < quadList.size()) {
+						contact = false;
 					}
 				}
-				quadList.add(tmpQuad);
 			}
+			quadList.add(tmpQuad);
 		}
 	}
 }
